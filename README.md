@@ -268,3 +268,130 @@ ashuc3
 
 ```
 
+### Trick to create kill
+
+```
+ fire@ashutoshhs-MacBook-Air  ~  docker  ps  -q              
+6e4c835e7197
+9f9dcb404719
+a0d25b636488
+9adc83c213ee
+e2ff1acd6772
+fe006f9ab8f8
+454fc2652be4
+4fd5dd0e3e2d
+a8752b0b0651
+f3c0d0ad2e34
+ fire@ashutoshhs-MacBook-Air  ~  docker kill $(docker  ps  -q)
+6e4c835e7197
+9f9dcb404719
+a0d25b636488
+9adc83c213ee
+e2ff1acd6772
+fe006f9ab8f8
+454fc2652be4
+4fd5dd0e3e2d
+a8752b0b0651
+f3c0d0ad2e34
+ fire@ashutoshhs-MacBook-Air  ~  docker  ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+ fire@ashutoshhs-MacBook-Air  ~  
+
+```
+
+### all non running container removing 
+
+```
+docker rm $(docker  ps  -aq)
+6e4c835e7197
+9f9dcb404719
+a0d25b636488
+ab29dea0099a
+9adc83c213ee
+e2ff1acd6772
+
+
+```
+
+### REMove docker image 
+
+```
+docker rmi  bbf6571db497  
+Untagged: mysql:latest
+Untagged: mysql@sha256:ff9a288d1ecf4397967989b5d1ec269f7d9042a46fc8bc2c3ae35458c1a26727
+Deleted: sha256:bbf6571db4977fe13c3f4e6289c1409fc6f98c2899eabad39bfe07cad8f64f67
+Deleted: sha256:a72da99dce60d6f8d4c4cffa4173153c990537fcdfaa27c35324c3348d55dd5c
+Deleted: sha256:8b535d432ef2fbd45d93958347b2587c5cbe334f07d6909ad9d2d480ebbafb65
+Deleted: sha256:14d13a3b33fc76839f156cd24b4636dab121e6d3d026cefa2985a4b89e9d4df8
+Deleted: sha256:77c21a5a897a1ba752f3d742d6c94ee7c6b0e373f
+```
+
+## APp containerization {app-image--container}
+
+<img src="cont1.png">
+
+### HTML frontend app Dockerfile 
+
+#### CLone source code 
+
+```
+
+git clone  https://github.com/microsoft/project-html-website
+Cloning into 'project-html-website'...
+remote: Enumerating objects: 19, done.
+remote: Total 19 (delta 0), reused 0 (delta 0), pack-reused 19
+Unpacking objects: 100% (19/19), 462.61 KiB | 966.00 KiB/s, done.
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/dockerimages  ls
+project-html-website
+
+```
+### building image
+
+```
+ cd  project-html-website 
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/dockerimages/project-html-website   master  ls
+Dockerfile LICENSE    README.md  css        fonts      img        index.html
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/dockerimages/project-html-website   master  ls -a
+.             .dockerignore Dockerfile    README.md     fonts         index.html
+..            .git          LICENSE       css           img
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/dockerimages/project-html-website   master  docker build    -t  ashuhttpd:dec13app1  . 
+Sending build context to Docker daemon  833.5kB
+Step 1/6 : FROM oraclelinux:8.5
+ ---> fa4253e97227
+Step 2/6 : LABEL name="ashutoshh"
+ ---> Running in 1ac7974fd596
+Removing intermediate container 1ac7974fd596
+ ---> 3d8cde119650
+Step 3/6 : LABEL email="ashutoshh@linux.com"
+ ---> Running in 2ec75c08012a
+```
+
+### checking image build history 
+
+```
+docker history  a6cf50558313
+IMAGE          CREATED          CREATED BY                                      SIZE      COMMENT
+a6cf50558313   4 minutes ago    /bin/sh -c #(nop)  CMD ["httpd" "-DFOREGROUN…   0B        
+fb6fb2f27dfa   4 minutes ago    /bin/sh -c #(nop) COPY dir:7b42fcc269e12c20e…   822kB     
+976210acaae1   7 minutes ago    /bin/sh -c yum  install httpd -y                163MB     
+6e46d0deeb7a   16 minutes ago   /bin/sh -c #(nop)  LABEL email=ashutoshh@lin…   0B        
+3d8cde119650   16 minutes ago   /bin/sh -c #(nop)  LABEL name=ashutoshh         0B        
+fa4253e97227   3 weeks ago      /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B        
+<missing>      3 weeks ago      /bin/sh -c #(nop) ADD file:4e55964bdaba265f1…   235MB     
+ fire@ashutoshhs-MacBook-Air  ~  docker images
+
+
+```
+
+### creating container from image 
+
+```
+docker run  -d  --name ashuwebc1  ashuhttpd:dec13app1  
+ba13153b3c48058c4fd806e2e8a6fe13ba0dc2cc1223de6fe2d77b0d712e3fd3
+ fire@ashutoshhs-MacBook-Air  ~  docker  ps
+CONTAINER ID   IMAGE                 COMMAND                CREATED         STATUS         PORTS     NAMES
+ba13153b3c48   ashuhttpd:dec13app1   "httpd -DFOREGROUND"   6 seconds ago   Up 2 seconds             ashuwebc1
+ fire@ashutoshhs-MacBook-Air  ~  
+
+```
+
