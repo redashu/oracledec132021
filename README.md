@@ -282,7 +282,157 @@ java-springboot      project-html-website pythonscript
  
 ```
 
+### Docker networking 
+
+### Existing network 
+
+```
+docker network  ls
+NETWORK ID     NAME      DRIVER    SCOPE
+35a9948cb45a   bridge    bridge    local
+9783c391ff70   host      host      local
+c474c3eeb91b   none      null      local
+ fire@ashutoshhs-MacBook-Air  ~  
+
+```
+
+### No network container 
+
+```
+docker run -it --rm  --network none  alpine  sh  
+/ # uname 
+Linux
+/ # uname -r
+4.14.252-195.483.amzn2.x86_64
+/ # cat /etc/os-release 
+NAME="Alpine Linux"
+ID=alpine
+VERSION_ID=3.15.0
+PRETTY_NAME="Alpine Linux v3.15"
+HOME_URL="https://alpinelinux.org/"
+BUG_REPORT_URL="https://bugs.alpinelinux.org/"
+/ # ls 
+bin    dev    etc    home   lib    media  mnt    opt    proc   root   run    sbin   srv    sys    tmp    usr    var
+/ # ping  google.com 
+ping: bad address 'google.com'
+/ # ^C
+/ # ifconfig 
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+/ # exit
+
+```
+
+### container with host bridge 
+
+```
+ docker run -it --rm --network host alpine sh
+```
+
+### Default bridge for all containers 
+
+```
+docker network  inspect  bridge
+[
+    {
+        "Name": "bridge",
+        "Id": "35a9948cb45a9f8d9393ace7a8d61764ee9dd3d8933e2ade23e054834ce91dce",
+        "Created": "2021-12-14T06:38:59.654560147Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16",
+                    "Gateway": "172.17.0.1"
+                }
+            ]
+```
+
+### default network bridge 
+
+```
+ docker run -itd --name c1  alpine 
+57b817bfff52e0f38d0cf05af8c40b6e98e5115ab8dca8f1789299dc80a451a9
+ fire@ashutoshhs-MacBook-Air  ~  
+ fire@ashutoshhs-MacBook-Air  ~  
+ fire@ashutoshhs-MacBook-Air  ~  docker run -itd --name c2  alpine 
+85fe271c6c24d254ba467222b63b4ea8443458334acdd4e0b667efc7487475f4
+do%                                                                                                                                           fire@ashutoshhs-MacBook-Air  ~  docker  ps
+CONTAINER ID   IMAGE     COMMAND     CREATED          STATUS         PORTS     NAMES
+85fe271c6c24   alpine    "/bin/sh"   4 seconds ago    Up 2 seconds             c2
+57b817bfff52   alpine    "/bin/sh"   11 seconds ago   Up 9 seconds             c1
+ fire@ashutoshhs-MacBook-Air  ~  docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+35a9948cb45a   bridge    bridge    local
+9783c391ff70   host      host      local
+c474c3eeb91b   none      null      local
+ fire@ashutoshhs-MacBook-Air  ~  docker  exec -it c1 ifconfig 
+eth0      Link encap:Ethernet  HWaddr 02:42:AC:11:00:02  
+          inet addr:172.17.0.2  Bcast:172.17.255.255  Mask:255.255.0.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:11 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:890 (890.0 B)  TX bytes:0 (0.0 B)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+ fire@ashutoshhs-MacBook-Air  ~  docker  exec -it c2 ifconfig 
+eth0      Link encap:Ethernet  HWaddr 02:42:AC:11:00:03  
+          inet addr:172.17.0.3  Bcast:172.17.255.255  Mask:255.255.0.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:9 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:710 (710.0 B)  TX bytes:0 (0.0 B)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
 
 
+
+```
+
+### Same bridge container can connect 
+
+```
+docker  exec -it c1 sh 
+/ # ping  172.17.0.3
+PING 172.17.0.3 (172.17.0.3): 56 data bytes
+64 bytes from 172.17.0.3: seq=0 ttl=255 time=0.108 ms
+64 bytes from 172.17.0.3: seq=1 ttl=255 time=0.075 ms
+64 bytes from 172.17.0.3: seq=2 ttl=255 time=0.077 ms
+^C
+--- 172.17.0.3 ping statistics ---
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 0.075/0.086/0.108 ms
+/ # exit
+
+```
+
+### NAT in docker bridge containers
+
+<img src="nat.png">
 
 
