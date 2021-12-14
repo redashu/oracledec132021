@@ -89,9 +89,43 @@ cf87065a7d2e: Downloading [=============>                                     ] 
 
 ```
 
+## Pushing image to OCR 
 
 
+### tagging 
 
+```
+docker  tag  ashuhttpd:dec13app1   phx.ocir.io/axmbtg8judkl/httpdapp:v1
+```
+
+### login 
+
+```
+docker login  phx.ocir.io   
+Username: axmbtg8judkl/learntechbyme@gmail.com
+Password: 
+Login Succeeded
+
+
+```
+
+### pushing image
+
+```
+docker push  phx.ocir.io/axmbtg8judkl/httpdapp:v1
+The push refers to repository [phx.ocir.io/axmbtg8judkl/httpdapp]
+afabf63ee6a0: Pushed 
+62e999172f36: Pushing [==========================================>        ]    140MB/163.1MB
+c029303805d7: Pu
+```
+
+### optional step 
+
+```
+docker  logout   phx.ocir.io
+Removing login credentials for phx.ocir.io
+
+```
 
 
 
