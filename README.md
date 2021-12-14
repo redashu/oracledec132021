@@ -435,4 +435,149 @@ round-trip min/avg/max = 0.075/0.086/0.108 ms
 
 <img src="nat.png">
 
+### Docker networking with custom bridge 
 
+```
+ 8603  docker network create  ashubr1
+ 8604  docker network ls
+ 8605  docker network inspect  ashubr1
+ fire@ashutoshhs-MacBook-Air  ~  docker run -itd --name c3 --network ashubr1 alpine 
+87d057bb714707c4a2372a398f74c618e9f08f955c575bacccb9a9ab88df2d27
+ fire@ashutoshhs-MacBook-Air  ~  docker run -itd --name c4 --network ashubr1 alpine 
+f2ac9b0b597c288317b64cbdb9a4a04a8945710aff3ba363259cab000f3db399
+ fire@ashutoshhs-MacBook-Air  ~  
+ fire@ashutoshhs-MacBook-Air  ~  docker  exec -it c3 sh 
+/ # 
+/ # ping c4
+PING c4 (172.18.0.3): 56 data bytes
+64 bytes from 172.18.0.3: seq=0 ttl=255 time=0.091 ms
+64 bytes from 172.18.0.3: seq=1 ttl=255 time=0.086 ms
+^C
+--- c4 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.086/0.088/0.091 ms
+/ # exit
+ fire@ashutoshhs-MacBook-Air  ~  docker  exec -it c3 sh 
+/ # ping c1
+ping: bad address 'c1'
+/ # ping  172.17.0.2
+PING 172.17.0.2 (172.17.0.2): 56 data bytes
+^C
+--- 172.17.0.2 ping statistics ---
+2 packets transmitted, 0 packets received, 100% packet loss
+/ # exit
+
+```
+### a container can be part of more than one bridge 
+
+```
+docker  network connect  ashubr2  c5
+ fire@ashutoshhs-MacBook-Air  ~  docker exec -it c5 sh 
+/ # ifconfig 
+eth0      Link encap:Ethernet  HWaddr 02:42:AC:12:00:04  
+          inet addr:172.18.0.4  Bcast:172.18.255.255  Mask:255.255.0.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:8 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:640 (640.0 B)  TX bytes:0 (0.0 B)
+
+eth1      Link encap:Ethernet  HWaddr 02:42:AC:14:00:02  
+          inet addr:172.20.0.2  Bcast:172.20.255.255  Mask:255.255.0.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:12 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:1000 (1000.0 B)  TX bytes:0 (0.0 B)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+```
+
+### more bridge 
+
+<img src="brx.png">
+
+### more commands 
+
+```
+
+ 8603  docker network create  ashubr1
+ 8604  docker network ls
+ 8605  docker network inspect  ashubr1
+ 8606  history
+ 8607  docker run -itd --name c3 --network ashubr1 alpine 
+ 8608  docker run -itd --name c4 --network ashubr1 alpine 
+ 8609  docker  exec -it c3 sh 
+ 8610  history
+ 8611  docker run -itd --name c5 --network ashubr1  --network bridge     alpine 
+ 8612  docker network create ashubr2
+ 8613  docker run -itd --name c5 --network ashubr1  --network ashubr2     alpine 
+ 8614  docker run -itd --name c5 --network ashubr1    alpine 
+ 8615  docker  network connect  ashubr2  c5
+ 8616  docker exec -it c5 sh 
+ 8617  history
+ 8618  docker  network disconnect  ashubr2  c5
+ 8619  docker  network disconnect  ashubr1  c5
+ 8620  docker exec -it c5 sh 
+ 8621  docker  network connect bridge  c5
+ 8622  docker  network connect ashubr1  c5
+ 8623  docker  network connect ashubr2  c5
+ 
+```
+
+### custom network series in bridge 
+
+```
+ ✘ fire@ashutoshhs-MacBook-Air  ~  docker network create ashubr3  --subnet  192.168.100.0/24
+c7b853159e8957805f2496732540c17d4f1d74f17fde4f87c36a592a059c2eb7
+ fire@ashutoshhs-MacBook-Air  ~  
+ fire@ashutoshhs-MacBook-Air  ~  
+ fire@ashutoshhs-MacBook-Air  ~  docker network create ashubr4  --subnet  192.168.101.0/28
+369f11457f8af0f24d56a2d253b268cf56feaa2bad8d07da13540c56b48e8c72
+ fire@ashutoshhs-MacBook-Air  ~  
+ fire@ashutoshhs-MacBook-Air  ~  docker run -itd --name c7  --network  ashubr3  alpine 
+e2dde88fc77ea990f5aeacef2474b0fb7a5d39a560dc3d4b1209f2934be266db
+ fire@ashutoshhs-MacBook-Air  ~  docker run -itd --name c8  --network  ashubr3 --ip 192.168.100.59   alpine 
+0953c7b71635d1c60eca06b37695f86a640322b870ec02f2ee9119274a1e4551
+ fire@ashutoshhs-MacBook-Air  ~  docker  kill c7 c8 
+c7
+c8
+ fire@ashutoshhs-MacBook-Air  ~  docker start  c8 c7 
+c8
+c7
+ fire@ashutoshhs-MacBook-Air  ~  docker  exec -it c8 ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+295: eth0@if296: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP 
+    link/ether 02:42:c0:a8:64:3b brd ff:ff:ff:ff:ff:ff
+    inet 192.168.100.59/24 brd 192.168.100.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+```
+
+### prune network bridge
+
+```
+ docker network prune 
+WARNING! This will remove all custom networks not used by at least one container.
+Are you sure you want to continue? [y/N] y
+Deleted Networks:
+no-internet7
+ashubr3
+ashubr4
+no-internet
+internet
+ashubr1
+ashubr2
+
+
+```
