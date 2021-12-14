@@ -246,6 +246,24 @@ always
 
 ```
 
+### docker file for python 
+
+```
+ ls
+Dockerfile        hello.py          oracle.dockerfile
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/dockerimages/pythonscript  docker build -t ashupython:v2 -f oracle.dockerfile   . 
+Sending build context to Docker daemon  4.096kB
+Step 1/7 : FROM oraclelinux:8.5
+ ---> fa4253e97227
+Step 2/7 : LABEL name="ashutoshh"
+ ---> Using cache
+ ---> 3d8cde119650
+Step 3/7 : RUN yum install python3 -y
+ ---> Running in 3fc1ed250aa9
+Oracle Linux 8 BaseOS Latest (x86_64)            94 MB/s |  40 MB     00:
+
+```
+
 
 
 
