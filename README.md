@@ -264,6 +264,24 @@ Oracle Linux 8 BaseOS Latest (x86_64)            94 MB/s |  40 MB     00:
 
 ```
 
+### Java sprint boot sample app -- Multi stage dockerfile 
+
+```
+git clone https://github.com/redashu/java-springboot.git
+Cloning into 'java-springboot'...
+remote: Enumerating objects: 23, done.
+remote: Counting objects: 100% (23/23), done.
+remote: Compressing objects: 100% (17/17), done.
+remote: Total 23 (delta 4), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (23/23), 5.60 KiB | 127.00 KiB/s, done.
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/dockerimages  ls                                            
+java-springboot      project-html-website pythonscript
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/dockerimages  
+ 
+ ===
+ 
+```
+
 
 
 
