@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: ashupodx1
+  name: ashupodx1 # name of pod 
+spec:
+  nodeName: minion2 # static scheduling 
+  containers:
+  - image: alpine  # image from docker hub 
+    name: ashucx1 # name of container 
+    command: ["sh","-c","ping google.com"] # to set process 
+
+  - image: dockerashu/ashuimages:dec14v1 # docker image 
+    name: ashupodx1 # name of container 
+    ports:
+    - containerPort: 80
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
