@@ -190,5 +190,93 @@ bce007079ee9: Pull complete
 eab9f076e5a3: Pull complete
 
 ```
+### Container orchestration engine 
+
+### SWARM -- Kubernetes -- openshift 
+
+### swarm 
+
+<img src="swarm.png">
+
+### SEtup swarm cluster 
+
+### setup manager 
+
+```
+yum install docker -y 
+systemctl start docker 
+
+docker  swarm  init  --advertise-addr  172.31.93.32  
+Swarm initialized: current node (49o4fez47g8awgabkevn5rcpl) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-3plo8d07a498t00jqh7q3vwamct1lxtzqwvbf7zlsycrshncye-2czabdpydv45yep8xajldvoul 172.31.93.32:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+
+```
+
+### to join worker insall docker and use above command 
+
+### from Manager we can do things 
+
+#### checking nodes 
+
+```
+docker  node  ls
+ID                            HOSTNAME                       STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+vvxcyfaqx40t5nemo6b3850j2     ip-172-31-82-94.ec2.internal   Ready     Active                          20.10.7
+49o4fez47g8awgabkevn5rcpl *   ip-172-31-93-32.ec2.internal   Ready     Active         Leader           20.10.7
+nac7kv3xgxj7nbkpo2fcbyfnq     ip-172-31-94-52.ec2.internal   Ready     Active                          20.10.7
+
+```
+
+
+### deploy any sample app in swarm 
+
+```
+docker  service  ls
+ID        NAME      MODE      REPLICAS   IMAGE     PORTS
+[root@ip-172-31-93-32 ~]# docker  service  create --name ashuwebapp -p 1155:80  dockerashu/ashuimages:dec14v1  
+9wim8v1fk2hvml8ud4usber5p
+overall progress: 1 out of 1 tasks 
+1/1: running   [==================================================>] 
+verify: Service converged 
+[root@ip-172-31-93-32 ~]# docker  service  ls
+ID             NAME         MODE         REPLICAS   IMAGE                           PORTS
+9wim8v1fk2hv   ashuwebapp   replicated   1/1        dockerashu/ashuimages:dec14v1   *:1155->80/tcp
+[root@ip-172-31-93-32 ~]# docker  service  ps  ashuwebapp
+ID             NAME           IMAGE                           NODE                           DESIRED STATE   CURRENT STATE            ERROR     PORTS
+rjs806l88nif   ashuwebapp.1   dockerashu/ashuimages:dec14v1   ip-172-31-93-32.ec2.internal   Running         Running 32 seconds ago             
+[root@ip-172-31-93-32 ~]# docker node ls
+ID                            HOSTNAME                       STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+vvxcyfaqx40t5nemo6b3850j2     ip-172-31-82-94.ec2.internal   Ready     Active                          20.10.7
+49o4fez47g8awgabkevn5rcpl *   ip-172-31-93-32.ec2.internal   Ready     Active         Leader           20.10.7
+nac7kv3xgxj7nbkpo2fcbyfnq     ip-172-31-94-52.ec2.internal   Ready     Active                          20.10.7
+[root@ip-172-31-93-32 ~]# 
+
+```
+
+### scaling app
+
+```
+ 13  docker  service  create --name ashuwebapp -p 1155:80  dockerashu/ashuimages:dec14v1  
+   14  docker  service  ls
+   15  docker  service  ps  ashuwebapp
+   16  docker node ls
+   17  docker  service --help
+   18  docker  service scale  --help
+   19  docker  service scale  ashuwebapp=5
+   20  docker  service  ls
+   21  docker  service  ps  ashuwebapp
+   22  history 
+[root@ip-172-31-93-32 ~]# docker  service  ps  ashuwebapp
+ID             NAME           IMAGE                           NODE                           DESIRED STATE   CURRENT STATE            ERROR     PORTS
+rjs806l88nif   ashuwebapp.1   dockerashu/ashuimages:dec14v1   ip-172-31-93-32.ec2.internal   Running         Running 3 minutes ago              
+n018y8cc6ble   ashuwebapp.2   dockerashu/ashuimages:dec14v1   ip-172-31-93-32.ec2.internal   Running         Running 49 seconds ago             
+q8xqiv8rrnnu   ashuwebapp.3   dockerashu/
+
+```
 
 
