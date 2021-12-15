@@ -279,4 +279,22 @@ q8xqiv8rrnnu   ashuwebapp.3   dockerashu/
 
 ```
 
+## K8s --- 
+
+### hardware level arch 
+
+<img src="arch.png">
+
+### setup of k8s cluster Methods 
+
+<img src="setup.png">
+
+## kubeadm to setup cluster 
+
+### youtube link 
+[youtube:](https://www.youtube.com/watch?v=TTzbQdu30YA)
+
+
+
+
 
