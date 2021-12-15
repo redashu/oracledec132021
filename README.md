@@ -330,4 +330,145 @@ minion2          Ready    <none>                 23m   v1.23.0
 
 ```
 
+### POd intro duction 
 
+<img src="pod.png">
+
+### httpd app pod file 
+
+```
+apiVersion: v1 # master node apiversion for POD related details
+kind: Pod 
+metadata: # info about POD /kind 
+ name: ashupod-123 # name pod 
+spec: # info about app stack 
+ containers: # container 
+ - name: ashuc1 # name of container
+   image: dockerashu/ashuimages:dec14v1 # image from Docker hub 
+   ports: # app port 
+   - containerPort: 80 
+   
+```
+
+### checking syntax of YAML 
+
+```
+kubectl apply -f ashupod1.yaml --dry-run=client 
+pod/ashupod-123 configured (dry run)
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  
+```
+
+### deploy YAML file 
+
+```
+
+kubectl apply -f ashupod1.yaml                  
+pod/ashupod-123 created
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get  pods
+NAME           READY   STATUS              RESTARTS   AGE
+ashupod-123    1/1     Running             0          3s
+harikapod1     0/1     ContainerCreating   0          0s
+kiranpod-123   1/1     Running             0          5m9s
+
+```
+
+### kube-schedular 
+
+<img src="sch.png">
+
+### checking schedular info 
+
+```
+kubectl  describe  pod  ashupod-123  |  tail   
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  5m43s  default-scheduler  Successfully assigned default/ashupod-123 to minion2
+  Normal  Pulled     5m41s  kubelet            Container image "dockerashu/ashuimages:dec14v1" already present on machine
+  Normal  Created    5m41s  kubelet            Created container ashuc1
+  Normal  Started    5m41s  kubelet            Started container ashuc1
+  
+```
+
+### another method --
+
+```
+kubectl  get po -o wide
+NAME            READY   STATUS    RESTARTS   AGE     IP                NODE      NOMINATED NODE   READINESS GATES
+anilpod-123     1/1     Running   0          11m     192.168.34.6      minion1   <none>           <none>
+ashupod-123     1/1     Running   0          6m41s   192.168.179.201   minion2   <none>           <none>
+devipod-123     1/1     Running   0          7m39s   192.168.179.198   minion2   <none>           <none>
+harikapod1      1/1     Running   0          12m     192.168.179.195   minion2   <none>           <none>
+kiranpod-123    1/1     Running   0          17m     192.168.34.2      minion1   <none>           <none>
+madhupod-123    1/1     Running   0          11m     192.168.34.7      minion1   <none>           <none>
+phani1          1/1     Running   0          7m8s    192.168.179.200   minion2   <none>  
+
+```
+
+### Info about pod 
+
+```
+kubectl  get po ashupod-123  -o wide
+NAME          READY   STATUS    RESTARTS   AGE     IP                NODE      NOMINATED NODE   READINESS GATES
+ashupod-123   1/1     Running   0          7m40s   192.168.179.201   minion2   <none>           <none>
+ fire@ashutoshhs-MacBook-Air  ~/Desktop  
+
+```
+
+### Persistent storage
+
+<img src="etcd.png">
+
+### login to container inside POD 
+
+```
+kubectl  exec  -it ashupod-123 -- bash 
+[root@ashupod-123 /]# cat /etc/os-release 
+NAME="Oracle Linux Server"
+VERSION="8.5"
+ID="ol"
+ID_LIKE="fedora"
+VARIANT="Server"
+VARIANT_ID="server"
+VERSION_ID="8.5"
+PLATFORM_ID="platform:el8"
+PRETTY_NAME="Oracle Linux Server 8.5"
+ANSI_COLOR="0;31"
+CPE_NAME="cpe:/o:oracle:linux:8:5:server"
+HOME_URL="https://linux.oracle.com/"
+BUG_REPORT_URL="https://bugzilla.oracle.com/"
+
+ORACLE_BUGZILLA_PRODUCT="Oracle Linux 8"
+ORACLE_BUGZILLA_PRODUCT_VERSION=8.5
+ORACLE_SUPPORT_PRODUCT="Oracle Linux"
+ORACLE_SUPPORT_PRODUCT_VERSION=8.5
+[root@ashupod-123 /]# exit
+exit
+
+
+```
+
+### Deleting POD 
+
+```
+kubectl  delete pod ashupod-123
+pod "ashupod-123" deleted
+ fire@ashutoshhs-MacBook-Air  ~/Desktop  
+
+
+```
+
+### Deleting all the pods
+
+```
+kubectl delete pod --all
+pod "anilpod-123" deleted
+pod "devipod-123" deleted
+pod "harikapod1" deleted
+pod "kiranpod-123" deleted
+pod "madhupod-123" deleted
+
+```
