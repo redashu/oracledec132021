@@ -73,7 +73,122 @@ DAEMON_PIDFILE_TIMEOUT=10
 
 ```
 
+### Install docker compose on linux client host 
+
+```
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   664  100   664    0     0  34947      0 --:--:-- --:--:-- --:--:-- 34947
+100 12.1M  100 12.1M    0     0  94.9M      0 --:--:-- --:--:-- --:--:-- 94.9M
+[root@ip-172-31-95-144 docker]# sudo chmod +x /usr/local/bin/docker-compose
+[root@ip-172-31-95-144 docker]# sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+[root@ip-172-31-95-144 docker]# 
+
+```
+
+### checking compose 
+
+```
+docker-compose  -v
+docker-compose version 1.29.2, build 5becea4c
+[test@ip-172-31-95-144 ashutoshhcompose]$ 
+
+```
+
+### COmpsoe file example 1 
+
+```
+version: '3.8'
+networks: # to create network 
+ ashubr1: # name of bridge 
+services:
+ ashuapp1: # container 1 app info 
+  image: alpine
+  container_name: ashuc1
+  command: ping fb.com 
+  restart: always 
+  networks: # using custom bridge 
+  - ashubr1
+
+ ashuapp2: # contianer 2 app info 
+  image: dockerashu/ashuimages:dec14v1
+  container_name: ashuc2 
+  restart: no 
+  networks: # using bridge 
+  - ashubr1
+  ports: # port forwardin like docker -p 1122:80 
+  - "1122:80"
 
 
+```
+
+
+### run compose 
+
+```
+docker-compose up -d
+Creating network "ashutoshhcompose_ashubr1" with the default driver
+Pulling ashuapp1 (alpine:)...
+latest: Pulling from library/alpine
+59bf1c3509f3: Pull complete
+Digest: sha256:21a3deaa0d32a8057914f36584b5288d2e5ecc984380bc0118285c70fa8c9300
+Status: Downloaded newer image for alpine:latest
+Pulling ashuapp2 (dockerashu/ashuimages:dec14v1)...
+dec14v1: Pulling from dockerashu/ashuimages
+b791d4160c6a: Pull complete
+096f3738e919: Pull complete
+cf87065a7d2e: Pull complete
+Digest: sha256:0fa34296d50a47b827b768c44eaf9c17344704f8d6e44014da51d8b271f511c1
+Status: Downloaded newer image for dockerashu/ashuimages:dec14v1
+Creating ashuc1 ... done
+Creating ashuc2 ... done
+```
+
+### COmpose more commands 
+
+```
+docker-compose  images
+Container        Repository           Tag       Image Id       Size  
+---------------------------------------------------------------------
+ashuc1      alpine                  latest    c059bfaa849c   5.586 MB
+ashuc2      dockerashu/ashuimages   dec14v1   a6cf50558313   399.3 MB
+[test@ip-172-31-95-144 ashutoshhcompose]$ 
+[test@ip-172-31-95-144 ashutoshhcompose]$ 
+[test@ip-172-31-95-144 ashutoshhcompose]$ docker-compose  ps 
+ Name         Command         State                  Ports                
+--------------------------------------------------------------------------
+ashuc1   ping fb.com          Up                                          
+ashuc2   httpd -DFOREGROUND   Up      0.0.0.0:1122->80/tcp,:::1122->80/tcp
+[test@ip-172-31-95-144 ashutoshhcompose]$ docker-compose  kill
+Killing ashuc1 ... done
+Killing ashuc2 ... done
+[test@ip-172-31-95-144 ashutoshhcompose]$ docker-compose  ps
+ Name         Command          State     Ports
+----------------------------------------------
+ashuc1   ping fb.com          Exit 137        
+ashuc2   httpd -DFOREGROUND   Exit 137      
+
+51  docker-compose up -d ashuapp1
+   52  docker-compose  ps
+   53  docker-compose  logs
+```
+
+### COmpose file runing 
+
+```
+docker-compose  -f webapp.yaml up -d
+Creating network "ashutoshhcompose_default" with the default driver
+Pulling mydatabase (mysql:)...
+latest: Pulling from library/mysql
+ffbb094f4f9e: Pull complete
+df186527fc46: Pull complete
+fa362a6aa7bd: Pull complete
+5af7cb1a200e: Pull complete
+949da226cc6d: Pull complete
+bce007079ee9: Pull complete
+eab9f076e5a3: Pull complete
+
+```
 
 
