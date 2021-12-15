@@ -295,6 +295,39 @@ q8xqiv8rrnnu   ashuwebapp.3   dockerashu/
 [youtube:](https://www.youtube.com/watch?v=TTzbQdu30YA)
 
 
+## K8s internal component Understanding 
 
+### Master Node -- kube-apiserver 
+
+<img src="api.png">
+
+### Master Node apiserver Certificates 
+
+<img src="cert.png">
+
+### connecting to k8s cluster using kubeconfig file --
+
+```
+kubectl  get  nodes   --kubeconfig admin.conf.txt 
+NAME             STATUS   ROLES                  AGE   VERSION
+controle-plane   Ready    control-plane,master   22m   v1.23.0
+minion1          Ready    <none>                 21m   v1.23.0
+minion2          Ready    <none>                 21m   v1.23.0
+
+```
+
+### COpy to config location 
+
+```
+cp -v admin.conf.txt  ~/.kube/config 
+admin.conf.txt -> /Users/fire/.kube/config
+ fire@ashutoshhs-MacBook-Air  ~/Desktop  
+ fire@ashutoshhs-MacBook-Air  ~/Desktop  kubectl  get  nodes
+NAME             STATUS   ROLES                  AGE   VERSION
+controle-plane   Ready    control-plane,master   24m   v1.23.0
+minion1          Ready    <none>                 23m   v1.23.0
+minion2          Ready    <none>                 23m   v1.23.0
+
+```
 
 
