@@ -553,5 +553,140 @@ kubectl  exec -it ashupodx1 -- sh                Defaulted container "ashucx1" o
  8765  kubectl logs ashupodx1  ashupodx1
  
 ```
+## namespace concept in k8s 
+
+<img src="ns.png">
+
+### checking namespace details 
+
+```
+ kubectl  get  pods
+No resources found in default namespace.
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get  namespaces
+NAME              STATUS   AGE
+default           Active   3h51m
+kube-node-lease   Active   3h51m
+kube-public       Active   3h51m
+kube-system       Active   3h51m
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get  ns        
+NAME              STATUS   AGE
+default           Active   3h51m
+kube-node-lease   Active   3h51m
+kube-public       Active   3h51m
+kube-system       Active   3h51m
+
+```
+
+### k8s internal components 
+
+```
+kubectl  get  po -n kube-system
+NAME                                       READY   STATUS    RESTARTS   AGE
+calico-kube-controllers-647d84984b-97lw7   1/1     Running   0          3h50m
+calico-node-dh2rx                          1/1     Running   0          3h50m
+calico-node-p8fj2                          1/1     Running   0          3h50m
+calico-node-x86ck                          1/1     Running   0          3h50m
+coredns-64897985d-2pcq2                    1/1     Running   0          3h52m
+coredns-64897985d-k59r5                    1/1     Running   0          3h52m
+etcd-controle-plane                        1/1     Running   0          3h53m
+kube-apiserver-controle-plane              1/1     Running   0       
+
+```
+
+### creating custom namesapce 
+
+```
+8781  kubectl  create  namespace  ashu-project 
+ 8782  kubectl  get  ns
+ 8783  kubectl  config set-context  --current --namespace=ashu-project
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  config get-contexts 
+CURRENT   NAME                          CLUSTER      AUTHINFO           NAMESPACE
+*         kubernetes-admin@kubernetes   kubernetes   kubernetes-admin   ashu-project
+
+```
 
 
+### Deploy pod in diff namespace 
+
+<img src="ns1.png">
+
+### namespace with LimitRange 
+
+<img src="lm.png">
+
+### LImitrange YAML 
+
+```
+apiVersion: v1
+kind: LimitRange
+metadata:
+ name: ashu-restriction # name of rule 
+ namespace: ashu-project # namespace where to apply 
+spec: 
+ limits:
+ - min: 
+    cpu: "50m" # 1 vcpu == 1000m { mili core} 
+    memory: 200Mi 
+   max: 
+    cpu: "200m"
+    memory: 700Mi 
+   type: Container 
+```
+
+### Deploy that 
+
+```
+kubectl apply -f Limitrange.yaml
+limitrange/ashu-restriction configured
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get  limitrange        
+NAME               CREATED AT
+ashu-restriction   2021-12-15T11:30:13Z
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get  limits    
+NAME               CREATED AT
+ashu-restriction   2021-12-15T11:30:13Z
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  describe limits ashu-restriction
+Name:       ashu-restriction
+Namespace:  ashu-project
+Type        Resource  Min    Max    Default Request  Default Limit  Max Limit/Request Ratio
+----        --------  ---    ---    ---------------  -------------  -----------------------
+Container   cpu       50m    200m   200m             200m           -
+Container   memory    200Mi  700Mi  700Mi            700Mi          -
+
+```
+
+### Checking it 
+
+```
+apiVersion: v1 # master node apiversion for POD related details
+kind: Pod 
+metadata: # info about POD /kind 
+ name: ashupod-123 # name pod 
+spec: # info about app stack 
+ containers: # container 
+ - name: ashuc1 # name of container
+   image: dockerashu/ashuimages:dec14v1 # image from Docker hub 
+   ports: # app port 
+   - containerPort: 80 
+   resources: # to define resource limit for container 
+    requests: 
+     cpu: 60m 
+     memory: 50Mi 
+    limits:
+     cpu: 700m 
+     memory: 1Gi 
+     
+ ```
+ 
+ ===
+ 
+ ```
+ kubectl apply -f  ashupod1.yaml 
+Error from server (Forbidden): error when creating "ashupod1.yaml": pods "ashupod-123" is forbidden: [minimum memory usage per Container is 200Mi, but request is 50Mi, maximum cpu usage per Container is 200m, but limit is 700m, maximum memory usage per Container is 700Mi, but limit is 1Gi]
+ 
+ ```
+ 
+ 
