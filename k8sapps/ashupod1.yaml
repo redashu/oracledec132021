@@ -8,3 +8,10 @@ spec: # info about app stack
    image: dockerashu/ashuimages:dec14v1 # image from Docker hub 
    ports: # app port 
    - containerPort: 80 
+   resources: # to define resource limit for container 
+    requests: 
+     cpu: 60m 
+     memory: 50Mi 
+    limits:
+     cpu: 700m 
+     memory: 1Gi 
