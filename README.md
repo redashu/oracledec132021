@@ -472,3 +472,86 @@ pod "kiranpod-123" deleted
 pod "madhupod-123" deleted
 
 ```
+
+### POD with more than one container 
+
+<img src="multcont.png">
+
+### Auto generate pod YAML / JSOn using kubectl 
+
+```
+ 8741  kubectl  run  ashupodx1  --image=dockerashu/ashuimages:dec14v1  --port=80      --dry-run=client  -o yaml 
+ 8742  kubectl  run  ashupodx1  --image=dockerashu/ashuimages:dec14v1  --port=80      --dry-run=client  -o yaml  >autogen.yaml
+ 8743  history
+ 8744  kubectl  run  ashupodx1  --image=dockerashu/ashuimages:dec14v1  --port=80      --dry-run=client  -o json 
+ 8745  kubectl  run  ashupodx1  --image=dockerashu/ashuimages:dec14v1  --port=80      --dry-run=client  -o json  >new.json
+ 
+ ```
+ 
+ ### 
+ 
+ ```
+ apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: ashupodx1
+  name: ashupodx1 # name of pod 
+spec:
+  nodeName: minion2 # static scheduling 
+  containers:
+  - image: alpine  # image from docker hub 
+    name: ashucx1 # name of container 
+    command: ["sh","-c","ping google.com"] # to set process 
+
+  - image: dockerashu/ashuimages:dec14v1 # docker image 
+    name: ashupodx1 # name of container 
+    ports:
+    - containerPort: 80
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+ 
+ ```
+
+
+### Deploy pod 
+
+```
+kubectl  apply -f  autogen.yaml 
+pod/ashupodx1 created
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get  pods
+NAME         READY   STATUS              RESTARTS   AGE
+ashupodx1    2/2     Running             0          8s
+kiranpodx1   0/2     ContainerCreating   0          1s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get  pods -o wide
+NAME         READY   STATUS    RESTARTS   AGE   IP                NODE      NOMINATED NODE   READINESS GATES
+ashupodx1    2/2     Running   0          29s   192.168.179.202   minion2   <none>           <none>
+
+```
+
+### access container shell
+
+```
+kubectl  exec -it ashupodx1 -- sh                Defaulted container "ashucx1" out of: ashucx1, ashupodx1
+/ # 
+/ # 
+/ # exit
+
+```
+
+### checking logs of container 
+
+```
+ 8761  kubectl logs ashupodx1
+ 8762  kubectl logs ashupodx1  ashucx1
+ 8763  history
+ 8764  kubectl logs ashupodx1
+ 8765  kubectl logs ashupodx1  ashupodx1
+ 
+```
+
+
