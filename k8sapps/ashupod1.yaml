@@ -2,6 +2,8 @@ apiVersion: v1 # master node apiversion for POD related details
 kind: Pod 
 metadata: # info about POD /kind 
  name: ashupod-123 # name pod 
+ labels:
+  x: hlelo
 spec: # info about app stack 
  containers: # container 
  - name: ashuc1 # name of container
