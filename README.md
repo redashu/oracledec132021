@@ -135,8 +135,150 @@ minion2
 
 ```
 
+### K8s Networking -- 
+
+<img src="cnet.png">
+
+### Deploy Node APP as POD 
+
+```
+kubectl run ashunode  --image=dockerashu/nodeapp:v1  --port 3000 --dry-run=client -o yaml  >nodeapp.yaml
+
+```
+
+### Deploy 
+
+```
+kubectl  apply -f  nodeapp.yaml 
+pod/ashunode created
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get po -w
+NAME       READY   STATUS              RESTARTS   AGE
+ashunode   0/1     ContainerCreating   0          4s
+ashunode   1/1     Running             0          26s
+^C%                                                                                                   
+ ✘ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get po   
+NAME       READY   STATUS    RESTARTS   AGE
+ashunode   1/1     Running   0          34s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get po -o wide
+NAME       READY   STATUS    RESTARTS   AGE   IP              NODE      NOMINATED NODE   READINESS GATES
+ashunode   1/1     Running   0          39s   192.168.34.61   minion1   <none>           <none>
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  
+
+```
+
+### access from Kubectl client side 
+
+```
+kubectl  port-forward  ashunode  1122:3000 
+Forwarding from 127.0.0.1:1122 -> 3000
+Forwarding from [::1]:1122 -> 3000
+Handling connection for 1122
+Handling connection for 1122
+Handling connection for 1122
+Handling connection for 1122
+
+```
+
+### Intro to Internal LB 
+
+<img src="lb.png">
+
+### create service 
+
+```
+kubectl  create  service
+Create a service using a specified subcommand.
+
+Aliases:
+service, svc
+
+Available Commands:
+  clusterip    Create a ClusterIP service
+  externalname Create an ExternalName service
+  loadbalancer Create a LoadBalancer service
+  nodeport     Create a NodePort service
+
+```
+
+### create NodePort service 
+
+```
+kubectl expose  pod  ashunode  --type NodePort --port  3000  --name  ashusvc1   --dry-run=client -o yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    run: ashunode
+  name: ashusvc1
+spec:
+  ports:
+  - port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    run: ashunode
+  type: NodePort
+status:
+  loadBalancer: {}
+  
+ ```
+  
+ ### checking service 
+ 
+ ```
+ kubectl expose  pod  ashunode  --type NodePort --port  3000  --name  ashusvc1   
+Error from server (AlreadyExists): services "ashusvc1" already exists
+ ✘ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get service 
+NAME       TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+ashusvc1   NodePort   10.104.252.123   <none>        3000:30505/TCP   18s
+ 
+ ```
+
+### Deployment creation 
+
+```
+kubectl  create  deployment  ashudep1  --image=dockerashu/nodeapp:v1   --dry-run=client  -o yaml   >ashudeploynode.yaml
+
+```
+
+### Deploy and check 
+
+```
+kubectl apply -f  ashudeploynode.yaml 
+deployment.apps/ashudep1 created
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get  deployment 
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+ashudep1   1/1     1            1           8s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get po          
+NAME                        READY   STATUS    RESTARTS   AGE
+ashudep1-6f955cf7f6-wt7mc   1/1     Running   0          19s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl delete pod ashudep1-6f955cf7f6-wt7mc
+pod "ashudep1-6f955cf7f6-wt7mc" deleted
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get po                             
+NAME                        READY   STATUS    RESTARTS   AGE
+ashudep1-6f955cf7f6-rts28   1/1     Running   0          6s
+
+```
+
+### exposing Deployment to create service 
+
+```
+kubectl  get deployment 
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+ashudep1   1/1     1            1           4m54s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl expose deployment ashudep1  --type NodePort --port  3000 --name  ashusvcx1  
+service/ashusvcx1 exposed
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl get  svc
+NAME        TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+ashusvcx1   NodePort   10.105.170.46   <none>        3000:30328/TCP   11s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  
 
 
+```
 
+## Ingress Controller. 
 
+<img src="ingress.png">
 
