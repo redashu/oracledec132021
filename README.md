@@ -282,3 +282,90 @@ ashusvcx1   NodePort   10.105.170.46   <none>        3000:30328/TCP   11s
 
 <img src="ingress.png">
 
+### Multi app in k8s with LB 
+
+<img src="lb1.png">
+
+### Solving problem using Ingress Controller 
+
+<img src="sol.png">
+
+### Deploy Ingress Controller in vm / bare-metal 
+
+[docs](https://kubernetes.github.io/ingress-nginx/deploy/#bare-metal-clusters)
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.0/deploy/static/provider/baremetal/deploy.yaml
+namespace/ingress-nginx created
+serviceaccount/ingress-nginx created
+configmap/ingress-nginx-controller created
+clusterrole.rbac.authorization.k8s.io/ingress-nginx unchanged
+clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx unchanged
+role.rbac.authorization.k8s.io/ingress-nginx created
+rolebinding.rbac.authorization.k8s.io/ingress-nginx created
+service/ingress-nginx-controller-admission created
+service/ingress-nginx-controller created
+deployment.apps/ingress-nginx-controller created
+ingressclass.networking.k8s.io/nginx unchanged
+validatingwebhookconfiguration.admissionregistration.k8s.io/ingress-nginx-admission configured
+serviceaccount/ingress-nginx-admission created
+clusterrole.rbac.authorization.k8s.io/ingress-nginx-admission unchanged
+clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx-admission unchanged
+role.rbac.authorization.k8s.io/ingress-nginx-admission created
+rolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created
+job.batch/ingress-nginx-admission-create created
+job.batch/ingress-nginx-admission-patch created
+
+```
+
+### ingress check 
+
+```
+ kubectl get  deploy  -n ingress-nginx    
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+ingress-nginx-controller   1/1     1            1           2m31s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl get  po -n ingress-nginx 
+NAME                                        READY   STATUS      RESTARTS   AGE
+ingress-nginx-admission-create-9pwsj        0/1     Completed   0          2m35s
+ingress-nginx-admission-patch-j4kg7         0/1     Completed   0          2m34s
+ingress-nginx-controller-84b9776df8-v7jj8   1/1     Running     0          2m39s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl get  svc -n ingress-nginx 
+NAME                                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+ingress-nginx-controller             NodePort    10.100.218.16   <none>        80:31928/TCP,443:32187/TCP   2m45s
+ingress-nginx-controller-admission   ClusterIP   10.104.31.104   <none>        443/TCP                      2m46s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl get  secret -n ingress-nginx 
+NAME                                  TYPE                                  DATA   AGE
+default-token-snpm8                   kubernetes.io/service-account-token   3      2m57s
+ingress-nginx-admission               Opaque                                3      2m44s
+ingress-nginx-admission-token-8wq9x   kubernetes.io/service-account-token   3      2m49s
+ingress-nginx-token-59z6q             kubernetes.io/service-account-token   3      2m56s
+
+```
+
+### Two apps are running in k8s 
+
+```
+ 
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  create deployment   customer1app --image=dockerashu/ashuimages:dec14v1
+
+deployment.apps/customer1app created
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  get  deploy
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+ashudep1       2/2     2            2           52m
+customer1app   1/1     1            1           5s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  expose  deploy  customer1app  --port 3000 --name customersvc
+service/customersvc exposed
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl get  svc
+NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+ashusvc       ClusterIP   10.97.3.219     <none>        3000/TCP   2m12s
+customersvc   ClusterIP   10.109.53.234   <none>        3000/TCP   5s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl  expose  deploy  customer1app  --port 80 --name customersvc1
+service/customersvc1 exposed
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps  kubectl delete svc customersvc
+service "customersvc" deleted
+
+```
+
