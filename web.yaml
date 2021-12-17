@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashuweb
+  name: ashuweb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashuweb
+  strategy: {}
+  template: # template info 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashuweb
+    spec:
+      containers:
+      - image: dockerashu/httpapps:v1
+        name: httpapps
+        env: # set/ update ENV var 
+        - name: deploy 
+          value: app1 
+        imagePullPolicy: Always 
+        resources: {}
+status: {}
