@@ -68,6 +68,14 @@ kubectl  create  clusterrolebinding  defaultsabind  --clusterrole=cluster-admin 
 
 ```
 
+### Deploy web app 
+
+```
+kubectl  create  deployment  ashuweb --image=dockerashu/httpapps:v1  --dry-run=client -o yaml  >web.yaml
+
+```
+
+
 
 
 
