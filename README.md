@@ -156,7 +156,7 @@ ashuweb-74b9df768-rg74q    1/1     Terminating   0          110s
 
 ```
 kubectl  autoscale  deployment  ashuweb --min=3  --max=20 --cpu-percent=80 
-horizontalpodautoscaler.autoscaling/ashuweb autoscaled
+horizontalpodautoscaler.autoscaling/ashuweb autoscaledp
  fire@ashutoshhs-MacBook-Air  ~  
  fire@ashutoshhs-MacBook-Air  ~  
  fire@ashutoshhs-MacBook-Air  ~  kubectl  get hpa
@@ -173,6 +173,133 @@ ashuweb   3/3     3            3           83m
 
 ```
 
+### K8s app deployment with Storage 
+
+<img src="st.png">
+
+### k8s volume type list 
+
+[List](https://kubernetes.io/docs/concepts/storage/volumes/)
+
+### two tier app deployment 
+
+### Storage in k8s 
+## PV 
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+ name: ashupv1 # this is namespace independent 
+  # this job done by Storage engg team 
+spec: 
+ capacity: 
+  storage: 4Gi # 2Gi , 3Gi , 1Gi , 1--- 7Gi 
+ accessModes: # permission in storage 
+  - ReadWriteMany # RWO , RWM , ROM (ReadWriteOnce)
+ nfs: # source of storage which is external NFS 
+  path: /common/ashu # Location on NFS server
+  server: 172.31.95.144 # ip address of NFS 
+ storageClassName: fast # slow , veryfast , veryslow
+
+```
+
+### deploy pv 
+
+```
+kubectl apply -f  ashupv.yaml 
+persistentvolume/ashupv1 created
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps/appdb  kubectl get pv
+NAME      CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   REASON   AGE
+ashupv1   4Gi        RWX            Retain           Available
+
+```
+
+### Deploy PVC 
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: ashupvc111 
+spec:
+ storageClassName: slow
+ accessModes: 
+ - ReadWriteOnce
+ resources:
+  requests:
+   storage: 2Gi 
+
+```
 
 
+====
+
+```
+ kubectl apply -f  ashupvc.yaml
+persistentvolumeclaim/ashupvc111 created
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps/appdb  kubectl  get pvc
+NAME         STATUS   VOLUME    CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+ashupvc111   Bound    venupv1   2Gi        RWO            slow           7s
+
+```
+
+## FOR DB deployment 
+
+### Mysql:5.6 
+
+### creating secret for root password storage 
+```
+kubectl  create secret generic  ashudbsec  --from-literal  sqlpass=Oracledb088        --dry-run=client  -o yaml 
+apiVersion: v1
+data:
+  sqlpass: T3JhY2xlZGIwODg=
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: ashudbsec
+
+```
+
+### Deploy Db 
+
+```
+ ls
+ashupv.yaml  ashupvc.yaml db.yaml
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps/appdb  kubectl apply -f db.yaml 
+deployment.apps/ashudb created
+secret/ashudbsec created
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps/appdb  kubectl get deploy
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+ashudb   1/1     1            1           15s
+ fire@ashutoshhs-MacBook-Air  ~/Desktop/k8sapps/appdb  kubectl get secret
+NAME                  TYPE                                  DATA   AGE
+ashudbsec             Opaque                                1      19s
+
+```
+
+
+### create service for db 
+
+```
+kubectl expose deployment  ashudb  --type ClusterIP  --port 3306  --dry-run=client -o yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashudb
+  name: ashudb
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    app: ashudb
+  type: ClusterIP
+status:
+  loadBalancer: {}
+
+```
 
