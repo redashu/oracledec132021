@@ -51,6 +51,12 @@ kubernetes-dashboard-token-d6tjk   kubernetes.io/service-account-token   3      
 
 ```
 
+### changing service type 
+
+```
+kubectl edit svc  kubernetes-dashboard  -n kubernetes-dashboard
+
+```
 ### ROles and clusterrole in k8s 
 
 <img src="role.png">
