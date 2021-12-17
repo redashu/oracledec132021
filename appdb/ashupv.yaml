@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+ name: ashupv1 # this is namespace independent 
+  # this job done by Storage engg team 
+spec: 
+ capacity: 
+  storage: 4Gi # 2Gi , 3Gi , 1Gi , 1--- 7Gi 
+ accessModes: # permission in storage 
+  - ReadWriteMany # RWO , RWM , ROM (ReadWriteOnce)
+ nfs: # source of storage which is external NFS 
+  path: /common/ashu # Location on NFS server
+  server: 172.31.95.144 # ip address of NFS 
+ storageClassName: fast # slow , veryfast , veryslow

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashudb
+  name: ashudb # name of deployment 
+spec:
+  replicas: 1 # singple db POD 
+  selector:
+    matchLabels:
+      app: ashudb
+  strategy: {}
+  template: # template to create Db POD 
+    metadata:
+      creationTimestamp: null
+      labels: # label of POD 
+        app: ashudb
+    spec:
+      volumes: # creating volume from pvc 
+      - name: ashudbvol # volume name 
+        persistentVolumeClaim: # source of volume 
+         claimName: ashupvc111
+      containers:
+      - image: mysql:5.6 # docker image 
+        name: mysql # mysql container name 
+        volumeMounts: # to about volume just created above 
+        - name: ashudbvol 
+          mountPath: /var/lib/mysql/ # mysql DB location is this 
+        env: # 
+        - name: MYSQL_ROOT_PASSWORD # pre define docker image env var
+          valueFrom: # calling data from Secret 
+           secretKeyRef:
+            name: ashudbsec # name of secret 
+            key: sqlpass # key of secret 
+        resources: {}
+status: {}
+# secret yaml here
+--- 
+apiVersion: v1
+data:
+  sqlpass: T3JhY2xlZGIwODg=
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: ashudbsec
+
+# service for this 
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashudb
+  name: ashudb
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    app: ashudb
+  type: ClusterIP
+status:
+  loadBalancer: {}
